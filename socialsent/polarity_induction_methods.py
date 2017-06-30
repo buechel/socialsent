@@ -55,8 +55,8 @@ def densify(embeddings, positive_seeds, negative_seeds,
     # checks if seeds are in model
     p_seeds = {word:1.0 for word in positive_seeds if word in embeddings.get_vocabulary()}
     n_seeds = {word:1.0 for word in negative_seeds if word in embeddings.get_vocabulary()}
-    print p_seeds
-    print n_seeds
+    #print p_seeds
+    #print n_seeds
     new_embeddings = embeddings
     new_embeddings = embedding_transformer.apply_embedding_transformation(
             embeddings, p_seeds, n_seeds, n_dim=1,  **kwargs)

@@ -124,8 +124,8 @@ class DatasetMinibatchIterator:
 
 
 def get_model(inputdim, outputdim, regularization_strength=0.01, lr=0.000, cosine=False, **kwargs):
-    print inputdim
-    print outputdim
+    #print inputdim
+    #print outputdim
     transformation = Dense(inputdim, init='identity',
                            W_constraint=Orthogonal())
 
@@ -158,14 +158,14 @@ def apply_embedding_transformation(embeddings, positive_seeds, negative_seeds,
                                    n_epochs=5, n_dim=10, force_orthogonal=False,
                                    plot=False, plot_points=50, plot_seeds=False,
                                    **kwargs):
-    print "Preparing to learn embedding tranformation"
+    #print "Preparing to learn embedding tranformation"
     dataset = DatasetMinibatchIterator(embeddings, positive_seeds, negative_seeds, **kwargs)
     # model = get_model(embeddings.m.shape[1], n_dim, **kwargs)
     m = embeddings.get_matrix()
-    print m.shape
+    #print m.shape
     model = get_model(m.shape[1], n_dim, **kwargs)
 
-    print "Learning embedding transformation"
+    #print "Learning embedding transformation"
 #    prog = util.Progbar(n_epochs)
     for epoch in range(n_epochs):
         dataset.shuffle()
