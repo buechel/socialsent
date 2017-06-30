@@ -18,7 +18,8 @@ def similarity_matrix(embeddings, arccos=False, similarity_power=1, nn=25, **kwa
     def make_knn(vec, nn=nn):
         vec[vec < vec[np.argsort(vec)[-nn]]] = 0
         return vec
-    L = embeddings.m.dot(embeddings.m.T)
+    # L = embeddings.m.dot(embeddings.m.T)
+    L = embeddings.get_matrix().dot(embeddings.get_matrix().T)
     if sparse.issparse(L):
         L = L.todense()
     if arccos:

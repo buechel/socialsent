@@ -50,12 +50,17 @@ def densify(embeddings, positive_seeds, negative_seeds,
     Learns polarity scores via orthogonally-regularized projection to one-dimension
     Adapted from: http://arxiv.org/pdf/1602.07572.pdf
     """
-    p_seeds = {word:1.0 for word in positive_seeds}
-    n_seeds = {word:1.0 for word in negative_seeds}
+    # p_seeds = {word:1.0 for word in positive_seeds}
+    # n_seeds = {word:1.0 for word in negative_seeds}
+    # checks if seeds are in model
+    p_seeds = {word:1.0 for word in positive_seeds if word in embeddings.get_vocabulary()}
+    n_seeds = {word:1.0 for word in negative_seeds if word in embeddings.get_vocabulary()}
+    print p_seeds
+    print n_seeds
     new_embeddings = embeddings
     new_embeddings = embedding_transformer.apply_embedding_transformation(
             embeddings, p_seeds, n_seeds, n_dim=1,  **kwargs)
-    polarities = {w:new_embeddings[w][0] for w in embeddings.iw}
+    polarities = {w:new_embeddings[w][0] for w in embeddings.get_vocabulary()}
     return polarities
 
 
@@ -72,7 +77,8 @@ def random_walk(embeddings, positive_seeds, negative_seeds, beta=0.9, **kwargs):
     if not type(positive_seeds) is dict:
         positive_seeds = {word:1.0 for word in positive_seeds}
         negative_seeds = {word:1.0 for word in negative_seeds}
-    words = embeddings.iw
+    # words = embeddings.iw
+    words = embeddings.get_vocabulary()
     M = transition_matrix(embeddings, **kwargs)
     rpos = run_random_walk(M, weighted_teleport_set(words, positive_seeds), beta, **kwargs)
     rneg = run_random_walk(M, weighted_teleport_set(words, negative_seeds), beta, **kwargs)

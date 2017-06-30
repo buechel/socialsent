@@ -13,7 +13,6 @@ from keras.constraints import Constraint
 import theano.tensor as T
 from socialsent.representations.embedding import Embedding
 
-
 """
 Helper methods for learning transformations of word embeddings.
 """
@@ -92,8 +91,10 @@ class DatasetMinibatchIterator:
 
         def add_examples(word_pairs, label):
             for w1, w2 in word_pairs:
-                embeddings1.append(embeddings[w1])
-                embeddings2.append(embeddings[w2])
+                # embeddings1.append(embeddings[w1])
+                # embeddings2.append(embeddings[w2])
+                embeddings1.append(embeddings.get_vector(w1))
+                embeddings2.append(embeddings.get_vector(w2))
                 labels.append(label)
                 self.words.append((w1, w2))
 
@@ -123,6 +124,8 @@ class DatasetMinibatchIterator:
 
 
 def get_model(inputdim, outputdim, regularization_strength=0.01, lr=0.000, cosine=False, **kwargs):
+    print inputdim
+    print outputdim
     transformation = Dense(inputdim, init='identity',
                            W_constraint=Orthogonal())
 
@@ -157,7 +160,10 @@ def apply_embedding_transformation(embeddings, positive_seeds, negative_seeds,
                                    **kwargs):
     print "Preparing to learn embedding tranformation"
     dataset = DatasetMinibatchIterator(embeddings, positive_seeds, negative_seeds, **kwargs)
-    model = get_model(embeddings.m.shape[1], n_dim, **kwargs)
+    # model = get_model(embeddings.m.shape[1], n_dim, **kwargs)
+    m = embeddings.get_matrix()
+    print m.shape
+    model = get_model(m.shape[1], n_dim, **kwargs)
 
     print "Learning embedding transformation"
 #    prog = util.Progbar(n_epochs)
@@ -172,7 +178,8 @@ def apply_embedding_transformation(embeddings, positive_seeds, negative_seeds,
             model.set_weights([Q, np.zeros_like(b)])
 #        prog.update(epoch + 1, exact_values=[('loss', loss / dataset.y.size)])
     Q, b = model.get_weights()
-    new_mat = embeddings.m.dot(Q)[:,0:n_dim]
+    # original: new_mat = embeddings.m.dot(Q)[:,0:n_dim]
+    new_mat = m.dot(Q)[:,0:n_dim]
     #print "Orthogonality rmse", np.mean(np.sqrt(
     #    np.square(np.dot(Q, Q.T) - np.identity(Q.shape[0]))))
 
@@ -192,4 +199,4 @@ def apply_embedding_transformation(embeddings, positive_seeds, negative_seeds,
         plt.xlim(xmin, xmax)
         plt.ylim(ymin, ymax)
         plt.show()
-    return Embedding(new_mat, embeddings.iw, normalize=n_dim!=1)
+    return Embedding(new_mat, embeddings.get_vocabulary(), normalize=n_dim!=1)
